@@ -362,7 +362,7 @@ const navigationStyle = {
   padding: "10px 20px",
   justifyContent: "flex-end",
   gap: "10px",
-  backgroundColor: "#241e24",
+  backgroundColor: "transparent",
 };
 
 const navButtonStyle = {
@@ -423,6 +423,12 @@ const footerStyle = {
   color: "#aaa",
   fontSize: "12px",
   borderTop: "1px solid #333",
+};
+
+const logoStyle = {
+  width: "40px",
+  height: "40px",
+  marginRight: "10px",
 };
 
 // ANSI HTML
@@ -527,18 +533,19 @@ const createOverlay = (options) => {
    * @returns {HTMLElement}
    */
   function createLogo() {
-    const logoDiv = document.createElement("div");
-    logoDiv.innerHTML = `
-      <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-        <rect width="60" height="60" fill="transparent"/>
-        <path d="M30 10L50 20V40L30 50L10 40V20L30 10Z" fill="#4baed3" stroke="#FFFFFF" stroke-width="2"/>
-        <path d="M30 10L30 30L10 20L30 10Z" fill="#1e86ad" stroke="#FFFFFF" stroke-width="1"/>
-        <path d="M30 10L50 20L30 30L30 10Z" fill="#76c3e5" stroke="#FFFFFF" stroke-width="1"/>
-        <path d="M30 30L30 50L10 40L30 30Z" fill="#1e86ad" stroke="#FFFFFF" stroke-width="1"/>
-        <path d="M30 30L50 40L30 50L30 30Z" fill="#76c3e5" stroke="#FFFFFF" stroke-width="1"/>
-      </svg>
-    `;
-    return logoDiv.firstChild;
+    const logoSvg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+      <path fill="#fff" d="M300 0l265 150v300L300 600 35 450V150z"/>
+      <path fill="#8ed6fb" d="M517.7 439.5L308.8 557.8v-92L439 394.1l78.7 45.4zm14.3-12.9V179.4l-76.4 44.1v159l76.4 44.1zM81.5 439.5l208.9 118.2v-92l-130.2-71.6-78.7 45.4zm-14.3-12.9V179.4l76.4 44.1v159l-76.4 44.1zm8.9-263.2L290.4 42.2v89l-137.3 75.5-1.1.6-75.9-43.9zm446.9 0L308.8 42.2v89L446 206.8l1.1.6 75.9-44z"/>
+      <path fill="#1c78c0" d="M290.4 444.8L162 374.1V234.2l128.4 74.1v136.5zm18.4 0l128.4-70.6v-140l-128.4 74.1v136.5zM299.6 303zm-129-85l129-70.9L428.5 218l-128.9 74.4-129-74.4z"/>
+    </svg>`;
+
+    const logoContainer = document.createElement("div");
+    logoContainer.innerHTML = overlayTrustedTypesPolicy
+      ? overlayTrustedTypesPolicy.createHTML(logoSvg)
+      : logoSvg;
+    applyStyle(logoContainer, logoStyle);
+    return logoContainer;
   }
 
   const overlayService = createOverlayMachine({
@@ -623,7 +630,7 @@ const createOverlay = (options) => {
       navigationElement.appendChild(currentErrorCountElement);
 
       const navButtonGroup = doc.createElement("div");
-
+      applyStyle(navButtonGroup, navigationStyle);
       const prevButton = doc.createElement("button");
       prevButton.innerHTML = `<span>⌘ + ←</span> PREV`;
       applyStyle(prevButton, navButtonStyle);
@@ -782,10 +789,12 @@ const createOverlay = (options) => {
 
     ensureOverlayExists(() => {
       // Store messages for navigation
-      currentMessages = messages.map((message) => {return {
-        type: level,
-        message,
-      }});
+      currentMessages = messages.map((message) => {
+        return {
+          type: level,
+          message,
+        };
+      });
 
       currentErrorIndex = Math.min(errorIndex, currentMessages.length - 1);
 
